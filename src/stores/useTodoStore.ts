@@ -1,5 +1,12 @@
 import { defineStore } from "pinia";
-import { computed, ref, type ComputedRef, type Ref } from "vue";
+import {
+  computed,
+  ref,
+  type ComputedRef,
+  type Ref,
+  watch,
+  onMounted,
+} from "vue";
 import type { Todo, TodoStatus } from "../interfaces/Todo";
 
 export const useTodoStore = defineStore("todoContext", () => {
@@ -83,6 +90,29 @@ export const useTodoStore = defineStore("todoContext", () => {
   const deleteCompletedTodos = () => {
     todos.value = todos.value.filter((t: Todo) => !t.completed);
   };
+
+  const saveToStorage = () => {
+    localStorage.setItem("todos", JSON.stringify(todos.value));
+  };
+
+  const loadFromStorage = () => {
+    const todosFromStorage = localStorage.getItem("todos");
+    if (todosFromStorage) {
+      todos.value = JSON.parse(todosFromStorage);
+    }
+  };
+
+  watch(
+    () => todos.value,
+    () => {
+      saveToStorage();
+    },
+    { deep: true }
+  );
+
+  onMounted(() => {
+    loadFromStorage();
+  });
 
   return {
     todos,
