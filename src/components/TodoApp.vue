@@ -11,7 +11,14 @@ const todosStore = useTodoStore();
 const { filter, todoCount, activeTodos, completedTodos, filteredTodos } =
   storeToRefs(todosStore);
 
-const { addTodo, deleteTodo, toggleTodo, toggleAll, setFilter } = todosStore;
+const {
+  addTodo,
+  deleteTodo,
+  toggleTodo,
+  toggleAll,
+  setFilter,
+  deleteCompletedTodos,
+} = todosStore;
 
 const taskValue: Ref<string> = ref("");
 
@@ -36,15 +43,22 @@ const inlineEdit = (todo: Todo) => {
     </h1>
 
     <div class="w-full flex justify-around items-center">
-      <div class="flex w-1/2 jusitfy-start items-center text-sm">
+      <div class="flex flex-1 jusitfy-start items-center text-sm gap-2">
         <button
           @click="toggleAll()"
           class="border rounded-lg px-2 py-2 text-xs hover:bg-sky-100"
         >
           Check / Uncheck all task
         </button>
+
+        <button
+          @click="deleteCompletedTodos()"
+          class="border rounded-lg px-2 py-2 text-xs bg-red-50 hover:bg-red-100"
+        >
+          Remove completed task
+        </button>
       </div>
-      <div class="flex p-2 w-full gap-2 justify-end items-center text-sm">
+      <div class="flex p-2 gap-2 justify-end items-center text-sm">
         <button
           @click="setFilter('all')"
           :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${

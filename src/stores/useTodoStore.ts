@@ -80,6 +80,10 @@ export const useTodoStore = defineStore("todoContext", () => {
     }
   };
 
+  const deleteCompletedTodos = () => {
+    todos.value = todos.value.filter((t: Todo) => !t.completed);
+  };
+
   return {
     todos,
     todoCount,
@@ -93,5 +97,6 @@ export const useTodoStore = defineStore("todoContext", () => {
     toggleTodo,
     editTodo,
     toggleAll,
+    deleteCompletedTodos,
   };
 });
