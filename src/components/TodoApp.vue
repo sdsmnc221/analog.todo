@@ -8,10 +8,10 @@ import { BadgeX, ListChecks } from "lucide-vue-next";
 
 const todosStore = useTodoStore();
 
-const { todos, todoCount, activeTodos, completedTodos } =
+const { filter, todoCount, activeTodos, completedTodos, filteredTodos } =
   storeToRefs(todosStore);
 
-const { addTodo, deleteTodo } = todosStore;
+const { addTodo, deleteTodo, toggleTodo, setFilter } = todosStore;
 
 const taskValue: Ref<string> = ref("");
 
@@ -31,12 +31,31 @@ const handleAddTodo = () => {
       <span class="uppercase">My Todo List</span>
     </h1>
 
-    <div
-      class="flex p-2 w-full bg-gray-50 gap-2 justify-between items-center text-sm"
-    >
-      <span>{{ todoCount }} task(s)</span>
-      <span>{{ activeTodos.length }} incompleted task(s)</span>
-      <span>{{ completedTodos.length }} completed task(s)</span>
+    <div class="flex p-2 w-full gap-2 justify-end items-center text-sm">
+      <button
+        @click="setFilter('all')"
+        :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
+          filter === 'all' && 'bg-blue-50'
+        }`"
+      >
+        All ({{ todoCount }})
+      </button>
+      <button
+        @click="setFilter('active')"
+        :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
+          filter === 'active' && 'bg-blue-50'
+        }`"
+      >
+        Active ({{ activeTodos.length }})
+      </button>
+      <button
+        @click="setFilter('completed')"
+        :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
+          filter === 'completed' && 'bg-blue-50'
+        }`"
+      >
+        Completed ({{ completedTodos.length }})
+      </button>
     </div>
 
     <div class="w-full flex justify-between">
@@ -55,19 +74,28 @@ const handleAddTodo = () => {
       </button>
     </div>
 
-    <ul class="" v-if="todos.length">
+    <ul class="" v-if="filteredTodos.length">
       <li
-        v-for="todo in todos"
+        v-for="todo in filteredTodos"
         :key="`todo-${todo.id}`"
-        class="flex justify-start items-center gap-2"
+        :class="`flex justify-start items-center gap-2 ${
+          todo.completed && 'line-through'
+        }`"
       >
-        <input type="checkbox" class="text-base" />
+        <input
+          type="checkbox"
+          @change="toggleTodo(todo.id)"
+          v-model="todo.completed"
+          class="text-base"
+        />
         <span class="flex-1 text-lg text-slate-600">{{ todo.text }}</span>
         <button @click="deleteTodo(todo.id)">
           <BadgeX class="text-sm text-red-500" />
         </button>
       </li>
     </ul>
+
+    <div v-else class="w-full text-center bg-red-50">No task found.</div>
   </div>
 </template>
 

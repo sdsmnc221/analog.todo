@@ -27,6 +27,14 @@ export const useTodoStore = defineStore("todoContext", () => {
 
   const todoCount: ComputedRef<number> = computed(() => todos.value.length);
 
+  const setFilter = (text: "active" | "completed" | "all") => {
+    if (text !== "active" && text !== "completed" && text !== "all") {
+      return;
+    }
+
+    filter.value = text;
+  };
+
   const addTodo = (text: string) => {
     todos.value.push({
       id: todos.value.length + 1,
@@ -62,6 +70,7 @@ export const useTodoStore = defineStore("todoContext", () => {
     completedTodos,
     filteredTodos,
     filter,
+    setFilter,
     addTodo,
     deleteTodo,
     toggleTodo,
