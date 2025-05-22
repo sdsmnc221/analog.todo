@@ -1,10 +1,31 @@
 import { defineStore } from "pinia";
-import { ref, type Ref } from "vue";
+import { computed, ref, type ComputedRef, type Ref } from "vue";
 import type { Todo, TodoStatus } from "../interfaces/Todo";
 
 export const useTodoStore = defineStore("todoContext", () => {
   const todos: Ref<Todo[]> = ref([]);
   const filter: Ref<TodoStatus> = ref("all");
+
+  const activeTodos: ComputedRef<Todo[]> = computed(() =>
+    todos.value.filter((t: Todo) => !t.completed)
+  );
+  const completedTodos: ComputedRef<Todo[]> = computed(() =>
+    todos.value.filter((t: Todo) => t.completed)
+  );
+  const filteredTodos: ComputedRef<Todo[]> = computed(() => {
+    switch (filter.value) {
+      case "all":
+        return todos.value;
+      case "active":
+        return activeTodos.value;
+      case "completed":
+        return completedTodos.value;
+      default:
+        return [];
+    }
+  });
+
+  const todoCount: ComputedRef<number> = computed(() => todos.value.length);
 
   const addTodo = (text: string) => {
     todos.value.push({
@@ -36,6 +57,10 @@ export const useTodoStore = defineStore("todoContext", () => {
 
   return {
     todos,
+    todoCount,
+    activeTodos,
+    completedTodos,
+    filteredTodos,
     filter,
     addTodo,
     deleteTodo,

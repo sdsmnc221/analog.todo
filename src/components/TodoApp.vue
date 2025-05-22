@@ -4,11 +4,13 @@ import { ref } from "vue";
 import { useTodoStore } from "../stores/useTodoStore";
 import { storeToRefs } from "pinia";
 
-import { BadgeX } from "lucide-vue-next";
+import { BadgeX, ListChecks } from "lucide-vue-next";
 
 const todosStore = useTodoStore();
 
-const { todos } = storeToRefs(todosStore);
+const { todos, todoCount, activeTodos, completedTodos } =
+  storeToRefs(todosStore);
+
 const { addTodo, deleteTodo } = todosStore;
 
 const taskValue: Ref<string> = ref("");
@@ -24,7 +26,18 @@ const handleAddTodo = () => {
 
 <template>
   <div class="flex flex-col h-screen w-1/2 mx-auto space-y-3 p-4">
-    <h1 class="text-4xl uppercase underline">My Todo List</h1>
+    <h1 class="text-4xl flex items-center gap-2">
+      <ListChecks class="text-6xl" />
+      <span class="uppercase">My Todo List</span>
+    </h1>
+
+    <div
+      class="flex p-2 w-full bg-gray-50 gap-2 justify-between items-center text-sm"
+    >
+      <span>{{ todoCount }} task(s)</span>
+      <span>{{ activeTodos.length }} incompleted task(s)</span>
+      <span>{{ completedTodos.length }} completed task(s)</span>
+    </div>
 
     <div class="w-full flex justify-between">
       <input
