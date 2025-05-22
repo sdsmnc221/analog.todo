@@ -14,7 +14,10 @@ const { addTodo, deleteTodo } = todosStore;
 const taskValue: Ref<string> = ref("");
 
 const handleAddTodo = () => {
-  addTodo(taskValue.value);
+  if (taskValue.value.trim().length) {
+    addTodo(taskValue.value);
+  }
+
   taskValue.value = "";
 };
 </script>
