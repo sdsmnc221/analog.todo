@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import TodoApp from "./components/TodoApp.vue";
 import "./styles/index.scss";
 </script>
 
 <template>
-  <div class="text-6xl text-red-500 font-bold underline">TODO</div>
+  <main>
+    <todo-app></todo-app>
+  </main>
 </template>
 
 <style scoped></style>
