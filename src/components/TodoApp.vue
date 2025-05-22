@@ -11,7 +11,7 @@ const todosStore = useTodoStore();
 const { filter, todoCount, activeTodos, completedTodos, filteredTodos } =
   storeToRefs(todosStore);
 
-const { addTodo, deleteTodo, toggleTodo, editTodo, setFilter } = todosStore;
+const { addTodo, deleteTodo, toggleTodo, toggleAll, setFilter } = todosStore;
 
 const taskValue: Ref<string> = ref("");
 
@@ -35,31 +35,41 @@ const inlineEdit = (todo: Todo) => {
       <span class="uppercase">My Todo List</span>
     </h1>
 
-    <div class="flex p-2 w-full gap-2 justify-end items-center text-sm">
-      <button
-        @click="setFilter('all')"
-        :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
-          filter === 'all' && 'bg-blue-50'
-        }`"
-      >
-        All ({{ todoCount }})
-      </button>
-      <button
-        @click="setFilter('active')"
-        :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
-          filter === 'active' && 'bg-blue-50'
-        }`"
-      >
-        Active ({{ activeTodos.length }})
-      </button>
-      <button
-        @click="setFilter('completed')"
-        :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
-          filter === 'completed' && 'bg-blue-50'
-        }`"
-      >
-        Completed ({{ completedTodos.length }})
-      </button>
+    <div class="w-full flex justify-around items-center">
+      <div class="flex w-1/2 jusitfy-start items-center text-sm">
+        <button
+          @click="toggleAll()"
+          class="border rounded-lg px-2 py-2 text-xs hover:bg-sky-100"
+        >
+          Check / Uncheck all task
+        </button>
+      </div>
+      <div class="flex p-2 w-full gap-2 justify-end items-center text-sm">
+        <button
+          @click="setFilter('all')"
+          :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
+            filter === 'all' && 'bg-blue-50'
+          }`"
+        >
+          All ({{ todoCount }})
+        </button>
+        <button
+          @click="setFilter('active')"
+          :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
+            filter === 'active' && 'bg-blue-50'
+          }`"
+        >
+          Active ({{ activeTodos.length }})
+        </button>
+        <button
+          @click="setFilter('completed')"
+          :class="`border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ${
+            filter === 'completed' && 'bg-blue-50'
+          }`"
+        >
+          Completed ({{ completedTodos.length }})
+        </button>
+      </div>
     </div>
 
     <div class="w-full flex justify-between">

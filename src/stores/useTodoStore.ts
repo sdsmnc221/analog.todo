@@ -64,6 +64,13 @@ export const useTodoStore = defineStore("todoContext", () => {
     }
   };
 
+  const toggleAll = () => {
+    todos.value.map((todo: Todo) => {
+      todo.completed = !todo.completed;
+      return todo;
+    });
+  };
+
   const deleteTodo = (id: number) => {
     const selectedTodoIndex: number = todos.value.findIndex(
       (t: Todo) => t.id === id
@@ -85,5 +92,6 @@ export const useTodoStore = defineStore("todoContext", () => {
     deleteTodo,
     toggleTodo,
     editTodo,
+    toggleAll,
   };
 });
