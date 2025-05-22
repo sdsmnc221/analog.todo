@@ -86,7 +86,7 @@ const inlineEdit = (todo: Todo) => {
       </div>
     </div>
 
-    <div class="w-full flex justify-between">
+    <div class="w-full flex justify-start gap-2">
       <input
         type="text"
         placeholder="Enter your task"
@@ -96,7 +96,7 @@ const inlineEdit = (todo: Todo) => {
 
       <button
         @click="handleAddTodo"
-        class="border rounded-lg px-4 py-2 hover:bg-sky-100 ease-in-out transition duration-1000"
+        class="border rounded-lg px-4 py-2 bg-sky-50 hover:bg-sky-100 ease-in-out transition duration-1000"
       >
         Add
       </button>
