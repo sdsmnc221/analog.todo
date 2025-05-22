@@ -1,4 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
+type TodoStatus = "active" | "completed" | "all";
+</script>
 
 <template>
   <div class="flex flex-col h-screen w-1/2 mx-auto space-y-3 p-4">
