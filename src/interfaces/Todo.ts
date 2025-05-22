@@ -3,6 +3,7 @@ export interface Todo {
   text: string;
   completed: boolean;
   createdAt: Date;
+  editable: boolean;
 }
 
 export type TodoStatus = "active" | "completed" | "all";

@@ -41,7 +41,17 @@ export const useTodoStore = defineStore("todoContext", () => {
       text,
       completed: false,
       createdAt: new Date(),
+      editable: false,
     });
+  };
+
+  const editTodo = (id: number, text: string) => {
+    const selectedTodoIndex: number = todos.value.findIndex(
+      (t: Todo) => t.id === id
+    );
+    if (selectedTodoIndex !== -1) {
+      todos.value[selectedTodoIndex].text = text;
+    }
   };
 
   const toggleTodo = (id: number) => {
@@ -74,5 +84,6 @@ export const useTodoStore = defineStore("todoContext", () => {
     addTodo,
     deleteTodo,
     toggleTodo,
+    editTodo,
   };
 });

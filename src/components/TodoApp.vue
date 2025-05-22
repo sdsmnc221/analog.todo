@@ -3,7 +3,7 @@ import type { Ref } from "vue";
 import { ref } from "vue";
 import { useTodoStore } from "../stores/useTodoStore";
 import { storeToRefs } from "pinia";
-
+import { Todo } from "../interfaces/Todo";
 import { BadgeX, ListChecks } from "lucide-vue-next";
 
 const todosStore = useTodoStore();
@@ -11,7 +11,7 @@ const todosStore = useTodoStore();
 const { filter, todoCount, activeTodos, completedTodos, filteredTodos } =
   storeToRefs(todosStore);
 
-const { addTodo, deleteTodo, toggleTodo, setFilter } = todosStore;
+const { addTodo, deleteTodo, toggleTodo, editTodo, setFilter } = todosStore;
 
 const taskValue: Ref<string> = ref("");
 
@@ -21,6 +21,10 @@ const handleAddTodo = () => {
   }
 
   taskValue.value = "";
+};
+
+const inlineEdit = (todo: Todo) => {
+  todo.editable = true;
 };
 </script>
 
@@ -78,17 +82,32 @@ const handleAddTodo = () => {
       <li
         v-for="todo in filteredTodos"
         :key="`todo-${todo.id}`"
-        :class="`flex justify-start items-center gap-2 ${
-          todo.completed && 'line-through'
-        }`"
+        class="flex justify-start items-center gap-2"
       >
         <input
           type="checkbox"
-          @change="toggleTodo(todo.id)"
+          @input="toggleTodo(todo.id)"
           v-model="todo.completed"
-          class="text-base"
+          class="p-4"
         />
-        <span class="flex-1 text-lg text-slate-600">{{ todo.text }}</span>
+        <span
+          @dblclick="inlineEdit(todo)"
+          class="flex-1 text-lg text-slate-600"
+        >
+          <span
+            v-if="!todo.editable"
+            :class="`${todo.completed && 'line-through'}`"
+            >{{ todo.text }}</span
+          >
+          <input
+            v-else
+            type="text"
+            v-model="todo.text"
+            :class="`appearance-none outline-none ${
+              todo.completed && 'line-through'
+            }`"
+          />
+        </span>
         <button @click="deleteTodo(todo.id)">
           <BadgeX class="text-sm text-red-500" />
         </button>
