@@ -39,6 +39,64 @@ const handleAddTodo = () => {
 const inlineEdit = (todo: Todo) => {
   todo.editable = true;
 };
+
+const draggedIndex: Ref<number> = ref(-1);
+const dragOverIndex: Ref<number> = ref(-1);
+const draggedItem: Ref<Todo | null> = ref(null);
+
+const handleDragStart = (e: DragEvent, todo: Todo, targetIndex: number) => {
+  if (!e.dataTransfer) return;
+
+  draggedIndex.value = targetIndex;
+  draggedItem.value = todo;
+
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", todo.id.toString());
+
+  const dragImage = e.target as HTMLElement;
+  e.dataTransfer.setDragImage(
+    dragImage,
+    dragImage.offsetWidth / 4,
+    dragImage.offsetHeight / 4
+  );
+};
+
+const handleDragEnd = (e: DragEvent) => {
+  draggedIndex.value = -1;
+  draggedItem.value = null;
+  dragOverIndex.value = -1;
+};
+
+const handleDragOver = (e: DragEvent, targetIndex: number) => {
+  e.preventDefault();
+
+  if (!e.dataTransfer) return;
+
+  e.dataTransfer.dropEffect = "move";
+
+  dragOverIndex.value = targetIndex;
+};
+
+const handleDragEnter = (e: DragEvent) => {
+  e.preventDefault();
+};
+
+const handleDragLeave = (e: DragEvent) => {
+  e.preventDefault();
+};
+
+const handleDrop = (e: DragEvent, targetIndex: number) => {
+  e.preventDefault();
+
+  if (targetIndex === draggedIndex.value || draggedIndex.value === -1) return;
+
+  const fromIndex = draggedIndex.value;
+  const toIndex = targetIndex;
+  const item = draggedItem.value!;
+
+  filteredTodos.value.splice(fromIndex, 1);
+  filteredTodos.value.splice(toIndex, 0, item);
+};
 </script>
 
 <template>
@@ -121,8 +179,15 @@ const inlineEdit = (todo: Todo) => {
       <ul class="" v-if="filteredTodos.length">
         <TransitionGroup>
           <li
-            v-for="todo in filteredTodos"
+            v-for="(todo, todoIndex) in filteredTodos"
             :key="`todo-${todo.id}`"
+            @dragstart="(e) => handleDragStart(e, todo, todoIndex)"
+            @dragend="handleDragEnd($event)"
+            @dragenter="handleDragEnter($event)"
+            @dragleave="handleDragLeave($event)"
+            @dragover="handleDragOver($event, todoIndex)"
+            @drop="(e) => handleDrop(e, todoIndex)"
+            :draggable="true"
             class="flex justify-start items-center gap-2"
           >
             <input
