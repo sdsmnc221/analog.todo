@@ -15,10 +15,10 @@ export const useTodoStore = defineStore("todoContext", () => {
   const filterKeyword: Ref<string> = ref("");
 
   const activeTodos: ComputedRef<Todo[]> = computed(() =>
-    todos.value.filter((t: Todo) => !t.completed)
+    todos.value.length > 0 ? todos.value.filter((t: Todo) => !t.completed) : []
   );
   const completedTodos: ComputedRef<Todo[]> = computed(() =>
-    todos.value.filter((t: Todo) => t.completed)
+    todos.value.length > 0 ? todos.value.filter((t: Todo) => t.completed) : []
   );
 
   const filteredTodos: ComputedRef<Todo[]> = computed(() => {
@@ -107,6 +107,13 @@ export const useTodoStore = defineStore("todoContext", () => {
     todos.value = todos.value.filter((t: Todo) => !t.completed);
   };
 
+  const reorderTodos = (fromIndex: number, toIndex: number) => {
+    const item = todos.value[fromIndex];
+    console.log(item, fromIndex);
+    filteredTodos.value.splice(fromIndex, 1);
+    filteredTodos.value.splice(toIndex, 0, item);
+  };
+
   const saveToStorage = () => {
     localStorage.setItem("todos", JSON.stringify(todos.value));
   };
@@ -145,5 +152,6 @@ export const useTodoStore = defineStore("todoContext", () => {
     editTodo,
     toggleAll,
     deleteCompletedTodos,
+    reorderTodos,
   };
 });

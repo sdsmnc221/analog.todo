@@ -3,8 +3,10 @@ import type { Ref } from "vue";
 import { ref } from "vue";
 import { useTodoStore } from "../stores/useTodoStore";
 import { storeToRefs } from "pinia";
-import { type Todo } from "../interfaces/Todo";
-import { BadgeX, ListChecks } from "lucide-vue-next";
+
+import { ListChecks } from "lucide-vue-next";
+import TodoItem from "./TodoItem.vue";
+import useDnD from "../composables/useDnD";
 
 const todosStore = useTodoStore();
 
@@ -17,14 +19,10 @@ const {
   filteredTodos,
 } = storeToRefs(todosStore);
 
-const {
-  addTodo,
-  deleteTodo,
-  toggleTodo,
-  toggleAll,
-  setFilter,
-  deleteCompletedTodos,
-} = todosStore;
+const { addTodo, toggleAll, setFilter, deleteCompletedTodos, reorderTodos } =
+  todosStore;
+
+const { draggedIndex, dragOverIndex } = useDnD();
 
 const taskValue: Ref<string> = ref("");
 
@@ -34,68 +32,6 @@ const handleAddTodo = () => {
   }
 
   taskValue.value = "";
-};
-
-const inlineEdit = (todo: Todo) => {
-  todo.editable = true;
-};
-
-const draggedIndex: Ref<number> = ref(-1);
-const dragOverIndex: Ref<number> = ref(-1);
-const draggedItem: Ref<Todo | null> = ref(null);
-
-const handleDragStart = (e: DragEvent, todo: Todo, targetIndex: number) => {
-  if (!e.dataTransfer) return;
-
-  draggedIndex.value = targetIndex;
-  draggedItem.value = todo;
-
-  e.dataTransfer.effectAllowed = "move";
-  e.dataTransfer.setData("text/plain", todo.id.toString());
-
-  const dragImage = e.target as HTMLElement;
-  e.dataTransfer.setDragImage(
-    dragImage,
-    dragImage.offsetWidth / 4,
-    dragImage.offsetHeight / 4
-  );
-};
-
-const handleDragEnd = (e: DragEvent) => {
-  draggedIndex.value = -1;
-  draggedItem.value = null;
-  dragOverIndex.value = -1;
-};
-
-const handleDragOver = (e: DragEvent, targetIndex: number) => {
-  e.preventDefault();
-
-  if (!e.dataTransfer) return;
-
-  e.dataTransfer.dropEffect = "move";
-
-  dragOverIndex.value = targetIndex;
-};
-
-const handleDragEnter = (e: DragEvent) => {
-  e.preventDefault();
-};
-
-const handleDragLeave = (e: DragEvent) => {
-  e.preventDefault();
-};
-
-const handleDrop = (e: DragEvent, targetIndex: number) => {
-  e.preventDefault();
-
-  if (targetIndex === draggedIndex.value || draggedIndex.value === -1) return;
-
-  const fromIndex = draggedIndex.value;
-  const toIndex = targetIndex;
-  const item = draggedItem.value!;
-
-  filteredTodos.value.splice(fromIndex, 1);
-  filteredTodos.value.splice(toIndex, 0, item);
 };
 </script>
 
@@ -178,46 +114,13 @@ const handleDrop = (e: DragEvent, targetIndex: number) => {
     <Transition>
       <ul class="" v-if="filteredTodos.length">
         <TransitionGroup>
-          <li
+          <todo-item
             v-for="(todo, todoIndex) in filteredTodos"
             :key="`todo-${todo.id}`"
-            @dragstart="(e) => handleDragStart(e, todo, todoIndex)"
-            @dragend="handleDragEnd($event)"
-            @dragenter="handleDragEnter($event)"
-            @dragleave="handleDragLeave($event)"
-            @dragover="handleDragOver($event, todoIndex)"
-            @drop="(e) => handleDrop(e, todoIndex)"
-            :draggable="true"
-            class="flex justify-start items-center gap-2"
-          >
-            <input
-              type="checkbox"
-              @input="toggleTodo(todo.id)"
-              v-model="todo.completed"
-              class="p-4"
-            />
-            <span
-              @dblclick="inlineEdit(todo)"
-              class="flex-1 text-lg text-slate-600"
-            >
-              <span
-                v-if="!todo.editable"
-                :class="`${todo.completed && 'line-through'}`"
-                >{{ todo.text }}</span
-              >
-              <input
-                v-else
-                type="text"
-                v-model="todo.text"
-                :class="`appearance-none outline-none ${
-                  todo.completed && 'line-through'
-                }`"
-              />
-            </span>
-            <button @click="deleteTodo(todo.id)">
-              <BadgeX class="text-sm text-red-500" />
-            </button>
-          </li>
+            :todo="todo"
+            :todo-index="todoIndex"
+            @reorder="reorderTodos(draggedIndex, dragOverIndex)"
+          ></todo-item>
         </TransitionGroup>
       </ul>
 
