@@ -3,13 +3,19 @@ import type { Ref } from "vue";
 import { ref } from "vue";
 import { useTodoStore } from "../stores/useTodoStore";
 import { storeToRefs } from "pinia";
-import { Todo } from "../interfaces/Todo";
+import { type Todo } from "../interfaces/Todo";
 import { BadgeX, ListChecks } from "lucide-vue-next";
 
 const todosStore = useTodoStore();
 
-const { filter, todoCount, activeTodos, completedTodos, filteredTodos } =
-  storeToRefs(todosStore);
+const {
+  filter,
+  filterKeyword,
+  todoCount,
+  activeTodos,
+  completedTodos,
+  filteredTodos,
+} = storeToRefs(todosStore);
 
 const {
   addTodo,
@@ -40,10 +46,8 @@ const inlineEdit = (todo: Todo) => {
     <h1 class="text-4xl flex items-center gap-2">
       <ListChecks class="text-6xl" />
       <span class="uppercase">My Todo List</span>
-    </h1>
 
-    <div class="w-full flex justify-around items-center">
-      <div class="flex flex-1 jusitfy-start items-center text-sm gap-2">
+      <div class="flex-1 flex justify-end items-center text-sm gap-2">
         <button
           @click="toggleAll()"
           class="border rounded-lg px-2 py-2 text-xs hover:bg-sky-100 ease-in-out transition duration-1000"
@@ -58,6 +62,16 @@ const inlineEdit = (todo: Todo) => {
           Remove completed task
         </button>
       </div>
+    </h1>
+
+    <div class="w-full flex justify-between items-center">
+      <input
+        type="text"
+        placeholder="Filter task by keyword"
+        class="border px-4 py-1 rounded-lg w-1/2 text-sm"
+        v-model="filterKeyword"
+      />
+
       <div class="flex p-2 gap-2 justify-end items-center text-sm">
         <button
           @click="setFilter('all')"
@@ -86,61 +100,64 @@ const inlineEdit = (todo: Todo) => {
       </div>
     </div>
 
-    <div class="w-full flex justify-start gap-2">
+    <div class="w-full flex justify-between text-sm gap-2">
       <input
         type="text"
         placeholder="Enter your task"
         class="border px-4 py-2 rounded-lg w-3/4"
         v-model="taskValue"
+        @keyup="(e) => e.key === 'Enter' && handleAddTodo()"
       />
 
       <button
         @click="handleAddTodo"
         class="border rounded-lg px-4 py-2 bg-sky-50 hover:bg-sky-100 ease-in-out transition duration-1000"
       >
-        Add
+        Add (or Enter)
       </button>
     </div>
 
-    <ul class="" v-if="filteredTodos.length">
-      <TransitionGroup>
-        <li
-          v-for="todo in filteredTodos"
-          :key="`todo-${todo.id}`"
-          class="flex justify-start items-center gap-2"
-        >
-          <input
-            type="checkbox"
-            @input="toggleTodo(todo.id)"
-            v-model="todo.completed"
-            class="p-4"
-          />
-          <span
-            @dblclick="inlineEdit(todo)"
-            class="flex-1 text-lg text-slate-600"
+    <Transition>
+      <ul class="" v-if="filteredTodos.length">
+        <TransitionGroup>
+          <li
+            v-for="todo in filteredTodos"
+            :key="`todo-${todo.id}`"
+            class="flex justify-start items-center gap-2"
           >
-            <span
-              v-if="!todo.editable"
-              :class="`${todo.completed && 'line-through'}`"
-              >{{ todo.text }}</span
-            >
             <input
-              v-else
-              type="text"
-              v-model="todo.text"
-              :class="`appearance-none outline-none ${
-                todo.completed && 'line-through'
-              }`"
+              type="checkbox"
+              @input="toggleTodo(todo.id)"
+              v-model="todo.completed"
+              class="p-4"
             />
-          </span>
-          <button @click="deleteTodo(todo.id)">
-            <BadgeX class="text-sm text-red-500" />
-          </button>
-        </li>
-      </TransitionGroup>
-    </ul>
+            <span
+              @dblclick="inlineEdit(todo)"
+              class="flex-1 text-lg text-slate-600"
+            >
+              <span
+                v-if="!todo.editable"
+                :class="`${todo.completed && 'line-through'}`"
+                >{{ todo.text }}</span
+              >
+              <input
+                v-else
+                type="text"
+                v-model="todo.text"
+                :class="`appearance-none outline-none ${
+                  todo.completed && 'line-through'
+                }`"
+              />
+            </span>
+            <button @click="deleteTodo(todo.id)">
+              <BadgeX class="text-sm text-red-500" />
+            </button>
+          </li>
+        </TransitionGroup>
+      </ul>
 
-    <div v-else class="w-full text-center bg-red-50">No task found.</div>
+      <div v-else class="w-full text-center bg-red-50">No task found.</div>
+    </Transition>
   </div>
 </template>
 

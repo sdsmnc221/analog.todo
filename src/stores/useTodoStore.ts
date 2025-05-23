@@ -12,6 +12,7 @@ import type { Todo, TodoStatus } from "../interfaces/Todo";
 export const useTodoStore = defineStore("todoContext", () => {
   const todos: Ref<Todo[]> = ref([]);
   const filter: Ref<TodoStatus> = ref("all");
+  const filterKeyword: Ref<string> = ref("");
 
   const activeTodos: ComputedRef<Todo[]> = computed(() =>
     todos.value.filter((t: Todo) => !t.completed)
@@ -19,17 +20,32 @@ export const useTodoStore = defineStore("todoContext", () => {
   const completedTodos: ComputedRef<Todo[]> = computed(() =>
     todos.value.filter((t: Todo) => t.completed)
   );
+
   const filteredTodos: ComputedRef<Todo[]> = computed(() => {
+    let usingTodo: Todo[] = [];
     switch (filter.value) {
       case "all":
-        return todos.value;
+        usingTodo = todos.value;
+        break;
       case "active":
-        return activeTodos.value;
+        usingTodo = activeTodos.value;
+        break;
       case "completed":
-        return completedTodos.value;
+        usingTodo = completedTodos.value;
+        break;
       default:
-        return [];
+        break;
     }
+
+    if (filterKeyword.value.length) {
+      return usingTodo.filter((t: Todo) =>
+        t.text
+          .trim()
+          .toLowerCase()
+          .includes(filterKeyword.value.trim().toLowerCase())
+      );
+    }
+    return usingTodo;
   });
 
   const todoCount: ComputedRef<number> = computed(() => todos.value.length);
@@ -121,6 +137,7 @@ export const useTodoStore = defineStore("todoContext", () => {
     completedTodos,
     filteredTodos,
     filter,
+    filterKeyword,
     setFilter,
     addTodo,
     deleteTodo,
